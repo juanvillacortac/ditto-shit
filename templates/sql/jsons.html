@@ -1,0 +1,90 @@
+{{- define "props"}}
+{{- range $i, $p := .Props}}{{ if $i }},{{ end }}
+{{- $another := Model $p.Type -}}
+{{- if $another }}
+"{{ NodeOptionOr $p "alt" ($p.Name | CamelCase) }}": {{ if $p.IsArray }}[{{ else }}{{ "{" }}{{end}}
+    {{- if $p.IsArray }}
+    {
+        {{- ExecTmpl "props" $another | indent 8 }}
+    }
+    {{- else }}
+    {{- ExecTmpl "props" $another | indent 4 }}
+    {{- end}}
+{{ if .IsArray }}]{{ else }}{{ "}" }}{{ end }}
+{{- else }}
+"{{ NodeOptionOr $p "alt" ($p.Name | CamelCase) }}": {{ if $p.IsArray }}[{{$p.Type}}]{{ else }}"{{$p.Type}}"{{end}}
+{{- end }}
+{{- end }}
+{{- end }}
+<head>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/default.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/12.3.2/markdown-it.min.js"></script>
+    <style>
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+    
+        @media (max-width: 767px) {
+            .markdown-body {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<div id="markdown" hidden>
+{{- $filter := Model (NodeOptionOr .Model "filter" "") -}}
+{{ if not (NodeOption .Model "singular") }}
+## Obtener listado de `{{ NodeOption .Model "alt" }}`
+
+{{- if $filter }}
+### Filtro
+```json
+{
+    {{- ExecTmpl "props" $filter | indent 4 }}
+}
+```
+{{- end }}
+
+### Respuesta
+```json
+[
+    {
+        {{- ExecTmpl "props" .Model | indent 8 }}
+    }
+]
+```
+{{ else }}
+## Obtener `{{ NodeOption .Model "alt" }}`
+
+{{- if $filter }}
+### Filtro
+```json
+{
+    {{- ExecTmpl "props" $filter | indent 4 }}
+}
+```
+{{- end }}
+
+### Respuesta
+```json
+{
+    {{- ExecTmpl "props" .Model | indent 4 }}
+}
+```
+{{ end }}
+</div>
+<div id="content" class="markdown-body"></div>
+<script>
+    const md = document.getElementById('markdown').innerHTML;
+    const renderer = window.markdownit();
+    document.getElementById('content').innerHTML = renderer.render(md);
+    hljs.highlightAll()
+</script>

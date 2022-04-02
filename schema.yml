@@ -1,0 +1,115 @@
+(module): "Masters"
+(cs_namespace): "ReceivableAccounts"
+(namespace): "Financial"
+
+(database_name): "ERP_FMS"
+(schema_name): "Maestro"
+
+GeneralBalanceFilter:
+  (sql_ignore): true
+  (filter_ignore): true
+  (dao_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+
+  fiscalYearId: { type: long, default: -1, (alt): IdEjercioFiscal }
+  initDate: { type: date, default: zeroDate(), (alt): FechaInicio }
+  endDate: { type: date, default: zeroDate(), (alt): FechaFin }
+  initAccountingAccount: { default: -1, type: long, (alt): IdCuentaContableInicio }
+  endAccountingAccount: { default: -1, type: long, (alt): IdCuentaContableFin }
+  idBusiness: { default: 1, type: long, (alt): IdEmpresa }
+
+GeneralBalanceDistribution:
+  (sql_ignore): true
+  (filter_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+
+  fiscalPeriodId: { type: long, (alt): IdPeriodoFiscal }
+  accountingAccountId: { type: long, (alt): IdCuentaContable }
+  accountingAccountCode: { type: string, (alt): CodigoCuentaContable }
+  credit: { type: string, (alt): Credito }
+  debit: { type: string, (alt): Debito }
+
+GeneralBalance:
+  (filter): GeneralBalanceFilter
+  (alt): BalanceGeneral
+  (list_ignore): true
+  (singular): true
+  (singularFromFilter): true
+  (notPost): true
+
+  (spGet): "[ERP_FMS].[Transaccional].[spObtenerBalanceGeneral]"
+
+  activeRoot: { type: GeneralBalanceDistribution, array: true, (alt): DETALLEACTIVO }
+  pasiveRoot: { type: GeneralBalanceDistribution, array: true, (alt): DETALLEPASIVO }
+  equityRoot: { type: GeneralBalanceDistribution, array: true, (alt): DETALLEPATRIMONIO }
+
+# FiscalYearFilter:
+#   (sql_ignore): true
+#   (filter_ignore): true
+#   (dao_ignore): true
+#   (service_ignore): true
+
+#   id:
+#     type: long
+#     pk: true
+#     (alt): "IdPeriodoFiscal"
+#     default: -1
+#   year: text
+#   unitPeriodType: long
+#   fiscalPeriods: { type: FiscalPeriod, array: true }
+#   active: bool
+
+# FiscalYear:
+#   (display): Ejercicio fiscal
+#   (displayPlural): Ejercicios fiscales
+#   (filter): FiscalYearFilter
+#   (alt): EjercicioFiscal
+#   id:
+#     type: long
+#     pk: true
+#     (alt): "IdPeriodoFiscal"
+#     default: -1
+#     (display): Código
+#   year: { type: text, (display): Ejercicio Fiscal }
+#   periodLength: { type: number, (display): Cantidad de periodos }
+#   initDate: { type: date, default: "now()", (display): Fecha de inicio }
+#   zeroDate: { type: date, default: "zeroDate()", (alt): "FechaFin", (display): Fecha fin}
+#   unitPeriodTypeId: long
+#   unitPeriodType: string
+#   fiscalPeriods: { type: FiscalPeriod, array: true }
+#   active: { type: bool, (active): true }
+#   createdByUserId: long
+#   updatedByUserId: long
+#   createdByUser: { type: string, (display): Creado por }
+#   updatedByUser: { type: string, (display): Actualizado por }
+
+# FiscalPeriod:
+#   (alt): PeriodoFiscal
+#   id:
+#     type: long
+#     pk: true
+#   periodNumber: number
+#   name: string
+#   range: string
+#   initDate: date
+#   endDate: date
+#   openedModules: { type: FiscalPeriodModule, array: true }
+#   closedModules: { type: FiscalPeriodModule, array: true }
+#   indClosed: string
+#   active: bool
+#   createdByUserId: long
+#   updatedByUserId: long
+#   createdByUser: string
+#   updatedByUser: string
+#   (service_ignore): true
+
+# FiscalPeriodModule:
+#   (alt): PeriodoFiscalModulo
+#   id:
+#     type: long
+#     pk: true
+#   name: string
+#   indClosed: number
+#   (service_ignore): true

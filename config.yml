@@ -1,0 +1,126 @@
+output: dist
+definitions:
+  ts:
+    types:
+      number: number
+      long: number
+      double: number
+      bool: boolean
+      text: string
+      date: Date
+    helpers:
+      '"now()"': new Date()
+      '"zeroDate()"': "new Date(1900, 0, 1)"
+  cs:
+    types:
+      number: int
+      long: long
+      double: double
+      string: string
+      text: string
+      date: string
+  sql:
+    types:
+      number: int
+      long: bigint
+      double: numeric(18, 4)
+      boolean: bit
+      string: varchar(100)
+      text: varchar(MAX)
+      date: datetime
+
+generators:
+  - name: Tablas
+    output: sql/create-table-{{ NodeOptionOr .Model "alt" .Model.Name | KebabCase }}.sql
+    template: templates/sql/create-table.sql.go.tpl
+    from: sql
+    ignore: sql_ignore
+
+  - name: Documentacion de los SPs - HTML
+    output: sql/{{ NodeOptionOr .Model "alt" .Model.Name | KebabCase }}-sp-docs.html
+    template: templates/sql/jsons.html
+    from: sql
+    ignore: sql_ignore
+
+  - name: Angular Models
+    template: templates/angular/model.ts.go.tpl
+    output: angular/models/{{ NodeOption .Root "namespace" | KebabCase }}/{{ .Model.Name | KebabCase }}.ts
+    from: ts
+
+  - name: Angular Services
+    template: templates/angular/service.ts.go.tpl
+    output: angular/services/{{ NodeOption .Root "namespace" | KebabCase }}/{{ .Model.Name | KebabCase }}.service.ts
+    ignore: service_ignore
+    from: ts
+
+  - name: Angular List Component
+    template: templates/angular/components/list.ts.go.tpl
+    output: angular/modules/{{ NodeOption .Root "namespace" | KebabCase }}/{{ .Model.Name | KebabCase }}/{{ .Model.Name | KebabCase }}-list.component.ts
+    from: ts
+    ignore: list_ignore
+
+  - name: Angular List Component HTML
+    template: templates/angular/components/list.html.go.tpl
+    output: angular/modules/{{ NodeOption .Root "namespace" | KebabCase }}/{{ .Model.Name | KebabCase }}/{{ .Model.Name | KebabCase }}-list.component.html
+    from: t
+    ignore: list_ignore
+
+  - name: ".NET Domain Models"
+    template: templates/asp/domain/model.cs
+    output: "{{with .Model.Name | CamelCase }}asp/Domain/{{ . }}/{{ . }}.cs{{ end }}"
+    ignore: dao_ignore
+    from: cs
+
+  - name: ".NET API ViewModels"
+    template: templates/asp/api/viewmodel.cs
+    output: "{{with .Model.Name | CamelCase }}asp/API/ViewModels/{{ . }}/{{ . }}.cs{{ end }}"
+    ignore: dao_ignore
+    from: cs
+
+  - name: ".NET API Controller"
+    template: templates/asp/api/controller.cs
+    output: "{{with .Model.Name | CamelCase }}asp/API/Controllers/{{ . }}Controller.cs{{ end }}"
+    ignore: service_ignore
+    from: cs
+
+  - name: ".NET API AutoMapper"
+    template: templates/asp/api/automapper.cs
+    output: "{{with .Model.Name | CamelCase }}asp/API/AutoMapper/{{ . }}Profile.cs{{ end }}"
+    ignore: service_ignore
+    from: cs
+
+  - name: ".NET Service Interface"
+    template: templates/asp/domain/IService.cs
+    output: "{{with .Model.Name | CamelCase }}asp/Domain/{{ . }}/Interfaces/I{{ . }}Service.cs{{ end }}"
+    ignore: service_ignore
+    from: cs
+
+  - name: ".NET Repository Interface"
+    template: templates/asp/domain/IRepository.cs
+    output: "{{with .Model.Name | CamelCase }}asp/Domain/{{ . }}/Interfaces/I{{ . }}Repository.cs{{ end }}"
+    ignore: service_ignore
+    from: cs
+
+  - name: ".NET Service Implementation"
+    template: templates/asp/domain/Service.cs
+    output: "{{with .Model.Name | CamelCase }}asp/Domain/{{ . }}/Implementations/{{ . }}Service.cs{{ end }}"
+    ignore: service_ignore
+    from: cs
+
+  - name: ".NET Repository SQL Implementation"
+    template: templates/asp/repository/sql.cs
+    output: "{{with .Model.Name | CamelCase }}asp/Repository/Implementations/SqlServer/Sql{{ . }}Repository.cs{{ end }}"
+    ignore: service_ignore
+    from: cs
+
+  - name: ".NET Repository DAOs"
+    template: templates/asp/repository/dao.cs
+    output: "{{with .Model.Name | CamelCase }}asp/Repository/Dao/{{ . }}/{{ . }}Dao.cs{{ end }}"
+    ignore: dao_ignore
+    from: cs
+
+  - name: ".NET Repository Automapper"
+    template: templates/asp/repository/automapper.cs
+    output: "{{with .Model.Name | CamelCase }}asp/Repository/AutoMapper/{{ . }}RepositoryProfile.cs{{ end }}"
+    ignore: service_ignore
+    from: cs
