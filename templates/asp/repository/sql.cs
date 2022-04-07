@@ -2,8 +2,15 @@
 {{- $filter := NodeOption .Model "filter" -}}
 using AutoMapper;
 
+
+{{- if $filter }}{{with Model $filter}}{{if not (NodeOption . "embedFilter")}}
+using {{ $namespace }}.Domain.{{ .Name | CamelCase }}Domain;
+{{- end }}{{ end }}{{ end }}
 using {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain;
 using {{ $namespace }}.Repository.Dao.{{ .Model.Name | CamelCase }};
+{{- if $filter }}{{with Model $filter}}{{if not (NodeOption . "embedFilter")}}
+using {{ $namespace }}.Repository.Dao.{{ .Name | CamelCase }};
+{{- end }}{{ end }}{{ end }}
 
 using {{ $namespace }}.Repository.Dao.Common;
 using {{ $namespace }}.Repository.Interfaces;
@@ -36,11 +43,13 @@ namespace {{ $namespace }}.Repository.Implementations.SqlServer
             string data = this._connector.GetJson(
               "{{ NodeOption .Model "spGetList" }}",
                 JObject.FromObject(this._mapper.Map<{{ $filter | CamelCase }}Dao>(filter))
-          );
+            );
+
             List<{{ .Model.Name | CamelCase }}Dao> dao = JsonUtils.DeserializeObjectOrDefault(
                 data,
                 new List<{{ .Model.Name | CamelCase }}Dao>()
             );
+
             return this._mapper.Map<List<{{ .Model.Name | CamelCase }}>>(dao)
                 .ToList();
         }
@@ -56,16 +65,21 @@ namespace {{ $namespace }}.Repository.Implementations.SqlServer
                 JObject.FromObject(this._mapper.Map<{{ $filter | CamelCase }}Dao>(filter))
             );
 
-            List<{{ .Model.Name | CamelCase }}Dao> dao = JsonUtils.DeserializeObjectOrDefault(
+            {{ if not (NodeOption .Model "isPage") -}}
+            List<{{ end }}{{ .Model.Name | CamelCase }}Dao
+            {{- if not (NodeOption .Model "isPage") }}>{{ end }} dao = JsonUtils.DeserializeObjectOrDefault(
                 data,
-                new List<{{ .Model.Name | CamelCase }}Dao>()
+                new {{ if not (NodeOption .Model "isPage") }}List<{{- end }}{{ .Model.Name | CamelCase }}Dao{{- if not (NodeOption .Model "isPage") }}>{{ end }}()
             );
+            {{- if not (NodeOption .Model "isPage") }}
 
             if (dao.Count < 1) {
                 return null;
             }
 
-            return this._mapper.Map<{{ .Model.Name | CamelCase }}>(dao[0]);
+            {{- end }}
+
+            return this._mapper.Map<{{ .Model.Name | CamelCase }}>(dao{{ if not (NodeOption .Model "isPage") }}[0]{{ end }});
         }
         {{- else }}
         {{- $pk := .Model.PKProp }}
@@ -84,16 +98,21 @@ namespace {{ $namespace }}.Repository.Implementations.SqlServer
               sqlParams
             );
 
-            List<{{ .Model.Name | CamelCase }}Dao> dao = JsonUtils.DeserializeObjectOrDefault(
+            {{ if not (NodeOption .Model "isPage") -}}
+            List<{{ end }}{{ .Model.Name | CamelCase }}Dao
+            {{- if not (NodeOption .Model "isPage") }}>{{ end }} dao = JsonUtils.DeserializeObjectOrDefault(
                 data,
-                new List<{{ .Model.Name | CamelCase }}Dao>()
+                new {{ if not (NodeOption .Model "isPage") }}List<{{- end }}{{ .Model.Name | CamelCase }}Dao{{- if not (NodeOption .Model "isPage") }}>{{ end }}()
             );
+            {{- if NodeOption .Model "isPage" }}
 
             if (dao.Count < 1) {
                 return null;
             }
 
-            return this._mapper.Map<{{ .Model.Name | CamelCase }}>(dao[0]);
+            {{- end }}
+
+            return this._mapper.Map<{{ .Model.Name | CamelCase }}>(dao{{ if not (NodeOption .Model "isPage") }}[0]{{ end }});
         }
         {{- end }}
         {{- end }}

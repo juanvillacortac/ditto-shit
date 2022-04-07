@@ -1,5 +1,8 @@
-{{- $filter := NodeOption .Model "filter" -}}
 {{ $namespace := NodeOption .Root "cs_namespace" -}}
+{{- $filter := NodeOption .Model "filter" -}}
+{{- if $filter }}{{with Model $filter}}{{if not (NodeOption . "embedFilter")}}
+using {{ $namespace }}.Domain.{{ .Name | CamelCase }}Domain;
+{{- end }}{{ end }}{{ end }}
 namespace {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain
 {
     public interface I{{ .Model.Name | CamelCase }}Repository

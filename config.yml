@@ -67,60 +67,60 @@ generators:
 
   - name: ".NET Domain Models"
     template: templates/asp/domain/model.cs
-    output: "{{with .Model.Name | CamelCase }}asp/Domain/{{ . }}/{{ . }}.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.Domain/{{ . }}/{{ . }}.cs{{ end }}"
     ignore: dao_ignore
     from: cs
 
   - name: ".NET API ViewModels"
     template: templates/asp/api/viewmodel.cs
-    output: "{{with .Model.Name | CamelCase }}asp/API/ViewModels/{{ . }}/{{ . }}.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.API/ViewModels/{{ . }}/{{ . }}.cs{{ end }}"
     ignore: dao_ignore
     from: cs
 
   - name: ".NET API Controller"
     template: templates/asp/api/controller.cs
-    output: "{{with .Model.Name | CamelCase }}asp/API/Controllers/{{ . }}Controller.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.API/Controllers/{{ . }}Controller.cs{{ end }}"
     ignore: service_ignore
     from: cs
 
   - name: ".NET API AutoMapper"
     template: templates/asp/api/automapper.cs
-    output: "{{with .Model.Name | CamelCase }}asp/API/AutoMapper/{{ . }}Profile.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.API/AutoMapper/{{ . }}Profile.cs{{ end }}"
     ignore: service_ignore
     from: cs
 
   - name: ".NET Service Interface"
     template: templates/asp/domain/IService.cs
-    output: "{{with .Model.Name | CamelCase }}asp/Domain/{{ . }}/Interfaces/I{{ . }}Service.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.Domain/{{ . }}/Interfaces/I{{ . }}Service.cs{{ end }}"
     ignore: service_ignore
     from: cs
 
   - name: ".NET Repository Interface"
     template: templates/asp/domain/IRepository.cs
-    output: "{{with .Model.Name | CamelCase }}asp/Domain/{{ . }}/Interfaces/I{{ . }}Repository.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.Domain/{{ . }}/Interfaces/I{{ . }}Repository.cs{{ end }}"
     ignore: service_ignore
     from: cs
 
   - name: ".NET Service Implementation"
     template: templates/asp/domain/Service.cs
-    output: "{{with .Model.Name | CamelCase }}asp/Domain/{{ . }}/Implementations/{{ . }}Service.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.Domain/{{ . }}/Implementations/{{ . }}Service.cs{{ end }}"
     ignore: service_ignore
     from: cs
 
   - name: ".NET Repository SQL Implementation"
     template: templates/asp/repository/sql.cs
-    output: "{{with .Model.Name | CamelCase }}asp/Repository/Implementations/SqlServer/Sql{{ . }}Repository.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.Repository/Implementations/SqlServer/Sql{{ . }}Repository.cs{{ end }}"
     ignore: service_ignore
     from: cs
 
   - name: ".NET Repository DAOs"
     template: templates/asp/repository/dao.cs
-    output: "{{with .Model.Name | CamelCase }}asp/Repository/Dao/{{ . }}/{{ . }}Dao.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.Repository/Dao/{{ . }}/{{ . }}Dao.cs{{ end }}"
     ignore: dao_ignore
     from: cs
 
   - name: ".NET Repository Automapper"
     template: templates/asp/repository/automapper.cs
-    output: "{{with .Model.Name | CamelCase }}asp/Repository/AutoMapper/{{ . }}RepositoryProfile.cs{{ end }}"
+    output: "{{ $ns := NodeOption .Root \"cs_namespace\" }}{{with .Model.Name | CamelCase }}asp/{{ $ns }}.Repository/AutoMapper/{{ . }}RepositoryProfile.cs{{ end }}"
     ignore: service_ignore
     from: cs

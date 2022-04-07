@@ -9,10 +9,10 @@ namespace {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain
     {
         {{- range .Model.Props}}
         {{ $fmtName := .Name | CamelCase -}}
-        public {{ if .IsArray }}System.Collections.Generic.List<{{ .Type }}>{{ else }}{{ .Type }}{{ end }} {{ $fmtName }} { get; set; }
+        public {{ if .IsArray }}System.Collections.Generic.List<{{ .Type }}>{{ else }}{{ .Type }}{{ end }} {{ $fmtName }} { get; set; }{{ if .IsArray }} = new System.Collections.Generic.List<{{ .Type }}>();{{ end }}
         {{- end }}
     }
-    {{- if $filter }}{{with Model $filter}}
+    {{- if $filter }}{{with Model $filter}}{{if NodeOption . "embedFilter"}}
 
     public class {{ .Name }}
     {
@@ -21,5 +21,5 @@ namespace {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain
         public {{ if .IsArray }}System.Collections.Generic.List<{{ .Type }}>{{ else }}{{ .Type }}{{ end }} {{ .Name | CamelCase }} { get; set; }
         {{- end }}
     }
-    {{- end }}{{ end }}
+    {{- end }}{{ end }}{{ end }}
 }

@@ -2,11 +2,17 @@
 {{- $filter := NodeOption .Model "filter" -}}
 using AutoMapper;
 
+{{- if $filter }}{{with Model $filter}}{{if not (NodeOption . "embedFilter")}}
+using {{ $namespace }}.Domain.{{ .Name | CamelCase }}Domain;
+{{- end }}{{ end }}{{ end }}
 using {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain;
 {{- range $key, $dep := ModelDeps .Model }}
 using {{ $namespace }}.Domain.{{ $dep.Name | CamelCase }}Domain;
 {{- end }}
 
+{{- if $filter }}{{with Model $filter}}{{if not (NodeOption . "embedFilter")}}
+using {{ $namespace }}.Repository.Dao.{{ .Name | CamelCase }};
+{{- end }}{{ end }}{{ end }}
 using {{ $namespace }}.Repository.Dao.{{ .Model.Name | CamelCase }};
 {{- range $key, $dep := ModelDeps .Model }}
 using {{ $namespace }}.Repository.Dao.{{ $dep.Name | CamelCase }};

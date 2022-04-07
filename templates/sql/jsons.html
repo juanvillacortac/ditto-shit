@@ -80,6 +80,17 @@
 }
 ```
 {{ end }}
+
+{{- if not (NodeOption .Model "notPost") }}
+## Crear o actualizar `{{ NodeOption .Model "alt" }}`
+
+### Payload
+```json
+{
+    {{- ExecTmpl "props" (Model (NodeOptionOr .Model "pageItem" .Model.Name)) | indent 4 }}
+}
+```
+{{ end }}
 </div>
 <div id="content" class="markdown-body"></div>
 <script>

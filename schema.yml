@@ -5,21 +5,63 @@
 (database_name): "ERP_FMS"
 (schema_name): "Maestro"
 
-GeneralBalanceFilter:
+TrialBalanceFilter:
   (sql_ignore): true
   (filter_ignore): true
   (dao_ignore): true
   (service_ignore): true
   (list_ignore): true
+  (embedFilter): true
 
-  fiscalYearId: { type: long, default: -1, (alt): IdEjercioFiscal }
+  page: { type: number, default: 1, (alt): NumeroPagina }
+  pageSize: { type: number, default: 5, (alt): CandidadRegistros }
   initDate: { type: date, default: zeroDate(), (alt): FechaInicio }
-  endDate: { type: date, default: zeroDate(), (alt): FechaFin }
-  initAccountingAccount: { default: -1, type: long, (alt): IdCuentaContableInicio }
-  endAccountingAccount: { default: -1, type: long, (alt): IdCuentaContableFin }
+  endDate: { type: date, default: now(), (alt): FechaFin }
+  initAccountingAccount: { default: "", type: string, (alt): CodigoCuentaContableInicio }
+  endAccountingAccount: { default: "", type: string, (alt): CodigoCuentaContableFin }
+  detailLevel: { default: -1, type: long, (alt): IdNivelDetalle }
   idBusiness: { default: 1, type: long, (alt): IdEmpresa }
 
-GeneralBalanceDistribution:
+TrialBalanceElement:
+  (service_ignore): true
+  (sql_ignore): true
+  (filter_ignore): true
+
+  fiscalPeriodId: { type: long, (alt): IdPeriodoFiscal }
+  accountingAccountId: { type: long, (alt): IdCuentaContable }
+  accountingAccountCode: { type: string, (alt): CodigoCuentaContable, (display): Código de la cuenta }
+  accountingAccountName: { type: string, (alt): CuentaContable, (display): Descripción de la cuenta }
+  previousBalance: { type: double, (alt): SaldoAnterior, (display): Saldo anterior }
+  credit: { type: double, (alt): Credito, (display): Creditos }
+  debit: { type: double, (alt): Debito, (display): Debitos }
+
+TrialBalance:
+  (alt): "BalanceComprobacion"
+  (list_ignore): true
+  (isPage): true
+  (notPost): true
+  (singular): true
+  (singularFromFilter): true
+  (filter): TrialBalanceFilter
+  (pageItem): TrialBalanceElement
+
+  elements: { type: TrialBalanceElement, array: true, (alt): ELEMENTOS }
+  count: { type: number, (alt): CantidadRegistros }
+
+##############################################################################################################
+
+LedgerBalanceFilter:
+  (sql_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+
+  initDate: { type: date, default: zeroDate(), (alt): FechaInicio }
+  endDate: { type: date, default: now(), (alt): FechaFin }
+  initAccountingAccount: { default: "", type: string, (alt): CodigoCuentaContableInicio }
+  endAccountingAccount: { default: "", type: string, (alt): CodigoCuentaContableFin }
+  idBusiness: { default: 1, type: long, (alt): IdEmpresa }
+
+LedgerBalanceItem:
   (sql_ignore): true
   (filter_ignore): true
   (service_ignore): true
@@ -27,23 +69,39 @@ GeneralBalanceDistribution:
 
   fiscalPeriodId: { type: long, (alt): IdPeriodoFiscal }
   accountingAccountId: { type: long, (alt): IdCuentaContable }
+  accountingAccountName: { type: string, (alt): CuentaContable }
   accountingAccountCode: { type: string, (alt): CodigoCuentaContable }
-  credit: { type: string, (alt): Credito }
-  debit: { type: string, (alt): Debito }
+  credit: { type: double, (alt): Credito }
+  debit: { type: double, (alt): Debito }
+
+IncomeStatement:
+  (filter): LedgerBalanceFilter
+  (alt): EstadoResultado
+  (list_ignore): true
+  (singular): true
+  (singularFromFilter): true
+  (notPost): true
+
+  (spGet): "[ERP_FMS].[Transaccional].[spObtenerEstadoResultado]"
+
+  incomeRoot: { type: LedgerBalanceItem, array: true, (alt): DETALLEPASIVO }
+  expenseRoot: { type: LedgerBalanceItem, array: true, (alt): DETALLEPATRIMONIO }
+  # incomeRoot: { type: IncomeStatementDistribution, array: true, (alt): DETALLEINGRESOS }
+  # expenseRoot: { type: IncomeStatementDistribution, array: true, (alt): DETALLEEGRESOS }
 
 GeneralBalance:
-  (filter): GeneralBalanceFilter
+  (filter): LedgerBalanceFilter
   (alt): BalanceGeneral
-  (list_ignore): true
+  # (list_ignore): true
   (singular): true
   (singularFromFilter): true
   (notPost): true
 
   (spGet): "[ERP_FMS].[Transaccional].[spObtenerBalanceGeneral]"
 
-  activeRoot: { type: GeneralBalanceDistribution, array: true, (alt): DETALLEACTIVO }
-  pasiveRoot: { type: GeneralBalanceDistribution, array: true, (alt): DETALLEPASIVO }
-  equityRoot: { type: GeneralBalanceDistribution, array: true, (alt): DETALLEPATRIMONIO }
+  activeRoot: { type: LedgerBalanceItem, array: true, (alt): DETALLEACTIVO }
+  pasiveRoot: { type: LedgerBalanceItem, array: true, (alt): DETALLEPASIVO }
+  equityRoot: { type: LedgerBalanceItem, array: true, (alt): DETALLEPATRIMONIO }
 
 # FiscalYearFilter:
 #   (sql_ignore): true
