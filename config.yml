@@ -36,8 +36,8 @@ generators:
     from: sql
     ignore: sql_ignore
 
-  - name: Documentacion de los SPs - HTML
-    output: sql/{{ NodeOptionOr .Model "alt" .Model.Name | KebabCase }}-sp-docs.html
+  - name: Documentacion de los SPs
+    output: sql_docs/{{ NodeOptionOr .Model "alt" .Model.Name | KebabCase }}-sp-docs.html
     template: templates/sql/jsons.html
     from: sql
     ignore: sql_ignore

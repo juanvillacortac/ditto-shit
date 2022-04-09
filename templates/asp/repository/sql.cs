@@ -123,7 +123,7 @@ namespace {{ $namespace }}.Repository.Implementations.SqlServer
             {{ .Model.Name | CamelCase }}Dao payload = this._mapper.Map<{{ .Model.Name | CamelCase }}Dao>(model);
             DatabaseResult result = this._connector.ExecuteWithJsonInput(
                 "{{ NodeOption .Model "spPost" }}",
-                payload,
+                payload
             );
 
             return result.IdResponseCode == (int)DatabaseResult.ResponseCodes.Success
