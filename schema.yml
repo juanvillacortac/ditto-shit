@@ -5,6 +5,120 @@
 (database_name): "ERP_FMS"
 (schema_name): "Maestro"
 
+IvaInvoice:
+  (alt): FacturaIva
+
+  (sql_ignore): true
+  (filter_ignore): true
+  (service_ignore): true
+
+  id: { type: long, (alt): IdFactura }
+  date: { type: date, (alt): FechaFactura, (display): Fecha }
+  control: { type: string, (alt): NumeroControlFactura, (display): Control }
+  invoiceTotal: { type: double, (alt): TotalFacturaFactura, (display): Total Factura }
+  ivaTaxId: { type: long, (alt): IdImpuesto }
+  ivaAmount: { type: double, (alt): MontoIvaFactura, (display): Monto IVA }
+  ivaRetention: { type: double, (alt): PorcentajeRetencionIvaFactura, (display): "% Retención de IVA" }
+  retentionTotal: { type: double, (alt): TotalRetencionFactura, (display): Total Retencion }
+  total: { type: double, (alt): TotalFactura, (display): Total }
+
+IvaInvoiceListFilter:
+  (sql_ignore): true
+  (filter_ignore): true
+  (dao_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+  (embedFilter): true
+
+  page: { type: number, default: 1, (alt): NumeroPagina }
+  pageSize: { type: number, default: 5, (alt): CandidadRegistros }
+  date: { type: date, default: now(), (alt): FechaFactura }
+  idSupplier: { default: -1, type: long, (alt): IdProveedor }
+  idBusiness: { default: 1, type: long, (alt): IdEmpresa }
+
+IvaInvoiceList:
+  (alt): FacturasIva
+
+  (list_ignore): true
+  (isPage): true
+  (notPost): true
+  (singular): true
+  (singularFromFilter): true
+  (filter): IvaInvoiceListFilter
+  (pageItem): IvaInvoice
+
+  elements: { type: IvaInvoice, array: true, (alt): ELEMENTOS }
+  count: { type: number, (alt): CantidadRegistros }
+
+
+IvaInvoicesComprobantDetail:
+  (alt):  ComprobanteRetencionIvaFacturaDetalle
+
+  (sql_ignore): true
+  (filter_ignore): true
+  (service_ignore): true
+
+  id: { type: long, (alt): IdComprobanteRetencionIvaFacturaDetalle }
+  invoiceId: { type: long, (alt): IdFactura }
+  date: { type: date, (alt): FechaFactura, (display): Fecha }
+  control: { type: string, (alt): NumeroControlFactura, (display): Control }
+  ivaTaxId: { type: long, (alt): IdImpuesto }
+  invoiceTotal: { type: double, (alt): TotalFacturaFactura, (display): Total Factura }
+  ivaAmount: { type: double, (alt): MontoIvaFactura, (display): Monto IVA }
+  ivaRetention: { type: double, (alt): PorcentajeRetencionIvaFactura, (display): "% Retención de IVA" }
+  retentionTotal: { type: double, (alt): TotalRetencionFactura, (display): Total Retencion }
+  total: { type: double, (alt): TotalFactura, (display): Total }
+  active: { type: boolean, (alt): IndActivo }
+
+
+IvaInvoicesComprobantFilter:
+  (sql_ignore): true
+  (filter_ignore): true
+  (dao_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+  (embedFilter): true
+
+  initDate: { type: date, default: zeroDate(), (alt): FechaInicio }
+  endDate: { type: date, default: now(), (alt): FechaFin }
+  supplierTypeId: { default: -1, type: int, (alt): IdTipoProveedor }
+  supplierId: { default: -1, type: int, (alt): IdProveedor }
+  invoiceTypeId: { default: -1, type: int, (alt): IdTipoFactura }
+  statusId: { default: -1, type: int, (alt): IdEstatus }
+  idBusiness: { default: 1, type: long, (alt): IdEmpresa }
+
+IvaInvoicesComprobant:
+  (alt): ComprobanteRetencionIvaFactura
+
+  (filter): IvaInvoicesComprobantFilter
+  (omitOnList): invoices
+  (postDetail): IvaInvoicesComprobantDetailPost
+
+  id: { type: long, pk: true, (alt): IdComprobanteRetencionIvaFactura }
+  date: { type: date, (alt): FechaComprobante } 
+  idSupplier: { type: long, (alt): IdProveedor }
+  supplierName: { type: string, (alt): Proveedor }
+  comprobantNumber: { type: string, (alt): NumeroComprobante }
+  invoicesTotal: { type: double, (alt): TotalFactura }
+  amountWithheld: { type: double, (alt): MontoRetenido }
+  totalToPay: { type: double, (alt): TotalAPagar }
+  idStatus: { type: int, (alt): IdEstatus }
+  invoices: { type: IvaInvoicesComprobantDetail, array: true, (alt): DETALLE }
+
+IvaInvoicesComprobantDetailPost:
+  (sql_ignore): true
+  (filter_ignore): true
+  (dao_ignore): true
+  (service_ignore): true
+  (model_ignore): true
+  (list_ignore): true
+
+  id: { type: long, (alt): IdComprobanteRetencionIvaFacturaDetalle }
+  invoiceId: { type: long, (alt): IdFactura }
+  active: { type: boolean, (alt): IndActivo }
+
+###########################################################################################################
+
 TrialBalanceFilter:
   (sql_ignore): true
   (filter_ignore): true

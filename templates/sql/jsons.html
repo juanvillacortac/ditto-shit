@@ -16,6 +16,43 @@
 {{- end }}
 {{- end }}
 {{- end }}
+{{- define "propsPost"}}
+{{- range $i, $p := .Props}}{{ if $i }},{{ end }}
+{{- $another := Model $p.Type -}}
+{{- if $another }}
+"{{ NodeOptionOr $p "alt" ($p.Name | CamelCase) }}": {{ if $p.IsArray }}[{{ else }}{{ "{" }}{{end}}
+    {{- if $p.IsArray }}
+    {
+        {{- ExecTmpl "props" (Model (NodeOptionOr $ "postDetail" $another.Name )) | indent 8 }}
+    }
+    {{- else }}
+    {{- ExecTmpl "props" (Model (NodeOptionOr $ "postDetail" $another.Name )) | indent 4 }}
+    {{- end}}
+{{ if .IsArray }}]{{ else }}{{ "}" }}{{ end }}
+{{- else }}
+"{{ NodeOptionOr $p "alt" ($p.Name | CamelCase) }}": {{ if $p.IsArray }}[{{$p.Type}}]{{ else }}"{{$p.Type}}"{{end}}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- define "propsList"}}
+{{- range $i, $p := .Props}}{{ if not (eq (NodeOptionOr $ "omitOnList" "") .Name) }}{{ if $i }},{{ end }}
+{{- $another := Model $p.Type -}}
+{{- if $another }}
+"{{ NodeOptionOr $p "alt" ($p.Name | CamelCase) }}": {{ if $p.IsArray }}[{{ else }}{{ "{" }}{{end}}
+    {{- if $p.IsArray }}
+    {
+        {{- ExecTmpl "props" $another | indent 8 }}
+    }
+    {{- else }}
+    {{- ExecTmpl "props" $another | indent 4 }}
+    {{- end}}
+{{ if .IsArray }}]{{ else }}{{ "}" }}{{ end }}
+{{- else }}
+"{{ NodeOptionOr $p "alt" ($p.Name | CamelCase) }}": {{ if $p.IsArray }}[{{$p.Type}}]{{ else }}"{{$p.Type}}"{{end}}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
 <head>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/default.min.css">
@@ -37,6 +74,28 @@
                 padding: 15px;
             }
         }
+
+        #toc > *:not(.title) {
+            display: list-item;
+            list-style-type: disc;   
+        }
+
+        #toc .h2 {
+            margin-left: .5in;
+            list-style-type: square;   
+        }
+        #toc .h3 {
+            margin-left: .75in;
+        }
+        #toc .h4 {
+            margin-left: 1in;
+        }
+        #toc .h5 {
+            margin-left: 1.25in;
+        }
+        #toc .h6 {
+            margin-left: 1.5in;
+        }
     </style>
 </head>
 <div id="markdown" hidden>
@@ -57,7 +116,7 @@
 ```json
 [
     {
-        {{- ExecTmpl "props" .Model | indent 8 }}
+        {{- ExecTmpl "propsList" .Model | indent 8 }}
     }
 ]
 ```
@@ -76,10 +135,28 @@
 ### Respuesta
 ```json
 {
-    {{- ExecTmpl "props" .Model | indent 4 }}
+    {{- ExecTmpl "propsList" .Model | indent 4 }}
 }
 ```
 {{ end }}
+
+{{- $pk := .Model.PKProp }}
+{{- if $pk }}
+## Obtener `{{ NodeOption .Model "alt" }}`
+
+### Parámetros
+
+```sql
+@{{NodeOptionOr $pk "alt" $pk.Name}} = {{ $pk.Type }}
+```
+
+### Respuesta
+```json
+{
+    {{- ExecTmpl "props" .Model | indent 4 }}
+}
+```
+{{- end }}
 
 {{- if not (NodeOption .Model "notPost") }}
 ## Crear o actualizar `{{ NodeOption .Model "alt" }}`
@@ -87,15 +164,48 @@
 ### Payload
 ```json
 {
-    {{- ExecTmpl "props" (Model (NodeOptionOr .Model "pageItem" .Model.Name)) | indent 4 }}
+    {{- ExecTmpl "propsPost" (Model (NodeOptionOr .Model "pageItem" .Model.Name)) | indent 4 }}
 }
 ```
 {{ end }}
 </div>
-<div id="content" class="markdown-body"></div>
+<div class="markdown-body">
+    <h1>Documentación de <code>{{NodeOptionOr .Model "alt" .Model.Name}}</code></h1>
+    <div id="toc">
+        <h3 class="title">Tabla de contenidos</h3>
+    </div>
+    <div id="content"></div>
+    <div style="display: flex; width: 100%; padding-top: 1rem; justify-content: flex-end;">
+        <a href="#">Ir al inicio</a>
+    </div>
+</div>
 <script>
     const md = document.getElementById('markdown').innerHTML;
     const renderer = window.markdownit();
     document.getElementById('content').innerHTML = renderer.render(md);
     hljs.highlightAll()
+
+    function htmlTableOfContents() {
+        var documentRef = document;
+        var toc = documentRef.getElementById('toc');
+        var headings = [].slice.call(documentRef.querySelectorAll('#content h1, #content h2, #content h3, #content h4, #content h5, #content h6'));
+        headings.forEach(function (heading, index) {
+            var anchor = documentRef.createElement('a');
+            anchor.setAttribute('name', 'toc' + index);
+            anchor.setAttribute('id', 'toc' + index);
+
+            var link = documentRef.createElement('a');
+            link.setAttribute('href', '#toc' + index);
+            link.textContent = heading.textContent;
+
+            var div = documentRef.createElement('div');
+            div.setAttribute('class', heading.tagName.toLowerCase());
+
+            div.appendChild(link);
+            toc.appendChild(div);
+            heading.parentNode.insertBefore(anchor, heading);
+        });
+    }
+
+    htmlTableOfContents()
 </script>
