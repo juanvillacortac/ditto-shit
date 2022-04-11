@@ -65,7 +65,7 @@ namespace {{ $namespace }}.API.Controllers
         [ProducesResponseType(typeof({{ .Model.Name | CamelCase }}ViewModel), (int)HttpStatusCode.OK)]
         public ActionResult<{{ .Model.Name | CamelCase }}ViewModel> Get({{ $pk.Type }} {{ $pk.Name }})
         {
-            {{ .Model.Name | CamelCase }} result = this._service.Get{{ .Model.Name | Plural }}(this._mapper.Map<{{ $filter | CamelCase }}>({{ $pk.Name }}));
+            {{ .Model.Name | CamelCase }} result = this._service.Get{{ .Model.Name }}({{ $pk.Name }});
             return new JsonResult(this._mapper.Map<{{ .Model.Name | CamelCase }}ViewModel>(result));
         }
         {{- end }}

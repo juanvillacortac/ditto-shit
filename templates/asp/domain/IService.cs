@@ -20,7 +20,7 @@ namespace {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain
         {{- end }}
         {{- end }}
         {{- if not (NodeOption .Model "notPost") }}
-        public long Post{{ .Model.Name | CamelCase }}(model: {{ .Model.Name }}, long idUser, long idBusiness);
+        public long Post{{ .Model.Name | CamelCase }}({{ .Model.Name }} model);
         {{- end }}
     }
 }

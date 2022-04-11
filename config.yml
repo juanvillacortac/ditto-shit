@@ -19,6 +19,7 @@ definitions:
       string: string
       text: string
       date: string
+      boolean: bool
   sql:
     types:
       number: int

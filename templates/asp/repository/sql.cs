@@ -87,7 +87,6 @@ namespace {{ $namespace }}.Repository.Implementations.SqlServer
 
         public {{ .Model.Name | CamelCase }} Get{{ .Model.Name }}({{ $pk.Type }} {{ $pk.Name }})
         {
-            {{ $filter | CamelCase }}Dao daoFilter = this._mapper.Map<{{ $filter | CamelCase }}Dao>(filter);
             List<SqlParameter> sqlParams = new List<SqlParameter>()
             {
                 new SqlParameter("{{ NodeOptionOr $pk "alt" $pk.Name }}", {{ $pk.Name }}),

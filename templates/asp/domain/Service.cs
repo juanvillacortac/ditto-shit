@@ -12,7 +12,7 @@ namespace {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain
         public {{ .Model.Name | CamelCase }}Service(I{{ .Model.Name | CamelCase }}Repository repository) =>
             this._repository = repository;
         {{ if and $filter (not (NodeOption .Model "singular")) }}
-        public System.Collections.Generic.List<{{ .Model.Name | Plural | CamelCase }}> Get{{ .Model.Name | Plural }}List({{ $filter | CamelCase }} filter) =>
+        public System.Collections.Generic.List<{{ .Model.Name | CamelCase }}> Get{{ .Model.Name | Plural }}List({{ $filter | CamelCase }} filter) =>
             this._repository.Get{{ .Model.Name | Plural }}List(filter);
         {{ end }}
 
@@ -23,12 +23,12 @@ namespace {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain
         {{- $pk := .Model.PKProp }}
         {{- if $pk }}
         public {{ .Model.Name | CamelCase }} Get{{ .Model.Name | CamelCase }}({{ $pk.Type }} {{ $pk.Name }}) =>
-            this._repository.Get{{ .Model.Name | CamelCase }}($pk.Name);
+            this._repository.Get{{ .Model.Name | CamelCase }}({{ $pk.Name }});
         {{- end }}
         {{- end }}
         {{- if not (NodeOption .Model "notPost") }}
-        public long Post{{ .Model.Name | CamelCase }}(model: {{ .Model.Name }}, long idUser, long idBusiness) =>
-            this._repository.Post{{ .Model.Name | CamelCase }}(model, idUser, idBusiness);
+        public long Post{{ .Model.Name | CamelCase }}({{ .Model.Name }} model) =>
+            this._repository.Post{{ .Model.Name | CamelCase }}(model);
         {{- end }}
     }
 }
