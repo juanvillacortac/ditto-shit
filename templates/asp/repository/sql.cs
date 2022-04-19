@@ -1,16 +1,23 @@
 {{ $namespace := NodeOption .Root "cs_namespace" -}}
 {{- $filter := NodeOption .Model "filter" -}}
+{{- $pageItem := (NodeOptionOr .Model "pageItem" .Model.Name) | CamelCase -}}
 using AutoMapper;
 
 
 {{- if $filter }}{{with Model $filter}}{{if not (NodeOption . "embedFilter")}}
 using {{ $namespace }}.Domain.{{ .Name | CamelCase }}Domain;
 {{- end }}{{ end }}{{ end }}
+{{- if ne $pageItem .Model.Name }}{{with Model $pageItem}}
+using {{ $namespace }}.Domain.{{ $pageItem }}Domain;
+{{- end }}{{ end }}
 using {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain;
 using {{ $namespace }}.Repository.Dao.{{ .Model.Name | CamelCase }};
 {{- if $filter }}{{with Model $filter}}{{if not (NodeOption . "embedFilter")}}
 using {{ $namespace }}.Repository.Dao.{{ .Name | CamelCase }};
 {{- end }}{{ end }}{{ end }}
+{{- if ne $pageItem .Model.Name }}{{with Model $pageItem}}
+using {{ $namespace }}.Repository.Dao.{{ $pageItem }};
+{{- end }}{{ end }}
 
 using {{ $namespace }}.Repository.Dao.Common;
 using {{ $namespace }}.Repository.Interfaces;
@@ -117,9 +124,9 @@ namespace {{ $namespace }}.Repository.Implementations.SqlServer
         {{- end }}
         {{- if not (NodeOption .Model "notPost") }}
 
-        public long Post{{ .Model.Name | CamelCase }}({{ .Model.Name | CamelCase }} model)
+        public long Post{{ .Model.Name | CamelCase }}({{ $pageItem }} model)
         {
-            {{ .Model.Name | CamelCase }}Dao payload = this._mapper.Map<{{ .Model.Name | CamelCase }}Dao>(model);
+            {{ $pageItem }}Dao payload = this._mapper.Map<{{ $pageItem }}Dao>(model);
             DatabaseResult result = this._connector.ExecuteWithJsonInput(
                 "{{ NodeOption .Model "spPost" }}",
                 payload

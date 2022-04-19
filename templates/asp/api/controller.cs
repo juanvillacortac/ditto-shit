@@ -1,5 +1,6 @@
 {{ $namespace := NodeOption .Root "cs_namespace" -}}
 {{- $filter := NodeOption .Model "filter" -}}
+{{- $pageItem := (NodeOptionOr .Model "pageItem" .Model.Name) | CamelCase -}}
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,11 +10,17 @@ using AutoMapper;
 {{- if $filter }}{{with Model $filter}}{{if not (NodeOption . "embedFilter")}}
 using {{ $namespace }}.Domain.{{ .Name | CamelCase }}Domain;
 {{- end }}{{ end }}{{ end }}
+{{- if ne $pageItem .Model.Name }}{{with Model $pageItem}}
+using {{ $namespace }}.Domain.{{ $pageItem }}Domain;
+{{- end }}{{ end }}
 using {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain;
 
 {{- if $filter }}{{with Model $filter}}{{if not (NodeOption . "embedFilter")}}
 using {{ $namespace }}.API.ViewModels.{{ .Name | CamelCase }};
 {{- end }}{{ end }}{{ end }}
+{{- if ne $pageItem .Model.Name }}{{with Model $pageItem}}
+using {{ $namespace }}.API.ViewModels.{{ $pageItem }};
+{{- end }}{{ end }}
 using {{ $namespace }}.API.ViewModels.{{ .Model.Name | CamelCase }};
 
 using Microsoft.AspNetCore.Authorization;
@@ -75,9 +82,9 @@ namespace {{ $namespace }}.API.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public ActionResult Post([FromBody] {{ .Model.Name | CamelCase }}ViewModel viewModel)
+        public ActionResult Post([FromBody] {{ $pageItem }}ViewModel viewModel)
         {
-            long result = this._service.Post{{ .Model.Name | CamelCase }}(this._mapper.Map<{{ .Model.Name | CamelCase }}>(viewModel));
+            long result = this._service.Post{{ .Model.Name | CamelCase }}(this._mapper.Map<{{ $pageItem }}>(viewModel));
             return new JsonResult(result);
         }
         {{- end }}

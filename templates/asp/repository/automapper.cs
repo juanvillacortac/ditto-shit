@@ -1,3 +1,19 @@
+{{- define "block" }}
+{{- range $key, $dep := ModelDeps . -}}
+{{- template "block" $dep }}
+{{- end }}
+_ = CreateMap<{{ .Name | CamelCase }}, {{ .Name | CamelCase }}Dao>()
+    {{- range .Props }}
+    {{- $another := Model .Type -}}
+    {{- if $another }}
+    .ForMember(
+        dest => dest.{{ .Name | CamelCase }},
+        opt => opt.MapFrom(src => src.{{ .Name | CamelCase }})
+    )
+    {{- end }}
+    {{- end }}
+    .ReverseMap();
+{{- end }}
 {{ $namespace := NodeOption .Root "cs_namespace" -}}
 {{- $filter := NodeOption .Model "filter" -}}
 using AutoMapper;
@@ -7,6 +23,9 @@ using {{ $namespace }}.Domain.{{ .Name | CamelCase }}Domain;
 {{- end }}{{ end }}{{ end }}
 using {{ $namespace }}.Domain.{{ .Model.Name | CamelCase }}Domain;
 {{- range $key, $dep := ModelDeps .Model }}
+{{- range $key, $dep2 := ModelDeps $dep }}
+using {{ $namespace }}.Domain.{{ $dep2.Name | CamelCase }}Domain;
+{{- end }}
 using {{ $namespace }}.Domain.{{ $dep.Name | CamelCase }}Domain;
 {{- end }}
 
@@ -15,6 +34,9 @@ using {{ $namespace }}.Repository.Dao.{{ .Name | CamelCase }};
 {{- end }}{{ end }}{{ end }}
 using {{ $namespace }}.Repository.Dao.{{ .Model.Name | CamelCase }};
 {{- range $key, $dep := ModelDeps .Model }}
+{{- range $key, $dep2 := ModelDeps $dep }}
+using {{ $namespace }}.Repository.Dao.{{ $dep2.Name | CamelCase }};
+{{- end }}
 using {{ $namespace }}.Repository.Dao.{{ $dep.Name | CamelCase }};
 {{- end }}
 
@@ -24,60 +46,10 @@ namespace {{ $namespace }}.Repository.AutoMapper
     {
         public {{ .Model.Name | CamelCase }}RepositoryProfile()
         {
-            {{- range $key, $dep := ModelDeps .Model }}
-            _ = CreateMap<{{ $dep.Name | CamelCase }}, {{ $dep.Name | CamelCase }}Dao>()
-                {{- range $dep.Props }}
-                {{- $another := Model .Type -}}
-                {{- if $another }}
-                .ForMember(
-                    dest => dest.{{ .Name | CamelCase }},
-                    opt => opt.MapFrom(src => src.{{ .Name | CamelCase }})
-                )
-                {{- end }}
-                {{- end }}
-                .ReverseMap();
-            {{- end }}
-            {{ range $key, $dep := ModelDeps (Model $filter) }}
-            _ = CreateMap<{{ $dep.Name | CamelCase }}, {{ $dep.Name | CamelCase }}Dao>()
-                {{- range $dep.Props }}
-                {{- $another := Model .Type -}}
-                {{- if $another }}
-                .ForMember(
-                    dest => dest.{{ .Name | CamelCase }},
-                    opt => opt.MapFrom(src => src.{{ .Name | CamelCase }})
-                )
-                {{- end }}
-                {{- end }}
-                .ReverseMap();
-            {{- end }}
-
             {{- if $filter }}
-            {{- with Model $filter }}
-            _ = CreateMap<{{ .Name | CamelCase }}, {{ .Name | CamelCase }}Dao>()
-                {{- range .Props }}
-                {{- $another := Model .Type -}}
-                {{- if $another }}
-                .ForMember(
-                    dest => dest.{{ .Name | CamelCase }},
-                    opt => opt.MapFrom(src => src.{{ .Name | CamelCase }})
-                )
-                {{- end }}
-                {{- end }}
-                .ReverseMap();
+            {{- with Model $filter }}{{ (ExecTmpl "block" .) | indent 12 }}{{ end }}
             {{- end }}
-            {{- end }}
-
-            _ = CreateMap<{{ .Model.Name | CamelCase }}, {{ .Model.Name | CamelCase }}Dao>()
-                {{- range .Model.Props }}
-                {{- $another := Model .Type -}}
-                {{- if $another }}
-                .ForMember(
-                    dest => dest.{{ .Name | CamelCase }},
-                    opt => opt.MapFrom(src => src.{{ .Name | CamelCase }})
-                )
-                {{- end }}
-                {{- end }}
-                .ReverseMap();
+            {{- (ExecTmpl "block" .Model) | indent 12 }}
         }
     }
 }

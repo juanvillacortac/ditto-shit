@@ -46,6 +46,7 @@ generators:
   - name: Angular Models
     template: templates/angular/model.ts.go.tpl
     output: angular/models/{{ NodeOption .Root "namespace" | KebabCase }}/{{ .Model.Name | KebabCase }}.ts
+    ignore: model_ignore
     from: ts
 
   - name: Angular Services

@@ -35,7 +35,7 @@
 {{- end }}
 {{- end }}
 {{- define "propsList"}}
-{{- range $i, $p := .Props}}{{ if not (eq (NodeOptionOr $ "omitOnList" "") .Name) }}{{ if $i }},{{ end }}
+{{- range $i, $p := .Props}}{{ if not (eq (NodeOptionOr $ "omit_on_list" "") .Name) }}{{ if $i }},{{ end }}
 {{- $another := Model $p.Type -}}
 {{- if $another }}
 "{{ NodeOptionOr $p "alt" ($p.Name | CamelCase) }}": {{ if $p.IsArray }}[{{ else }}{{ "{" }}{{end}}
@@ -164,7 +164,7 @@
 ### Payload
 ```json
 {
-    {{- ExecTmpl "propsPost" (Model (NodeOptionOr .Model "pageItem" .Model.Name)) | indent 4 }}
+    {{- ExecTmpl "propsPost" (Model (NodeOptionOr .Model "post_model" (NodeOptionOr .Model "pageItem" .Model.Name))) | indent 4 }}
 }
 ```
 {{ end }}
