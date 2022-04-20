@@ -6,6 +6,9 @@ import { {{ .Model.Name }} } from '../../models/{{ NodeOption .Root "namespace" 
 {{- if $filter }}
 import { {{ $filter }} } from "../../models/{{ NodeOption .Root "namespace" | KebabCase }}/{{ $filter | KebabCase }}";
 {{- end }}
+{{- if ne $pageItem .Model.Name }}{{with Model $pageItem}}
+import { {{ $pageItem }} } from "../../models/{{ NodeOption .Root "namespace" | KebabCase }}/{{ $pageItem | KebabCase }}";
+{{- end }}{{ end }}
 
 @Injectable({
   providedIn: "root",
