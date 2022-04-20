@@ -1,4 +1,5 @@
 {{- $filter := NodeOption .Model "filter" -}}
+{{- $pageItem := (NodeOptionOr .Model "pageItem" .Model.Name) | CamelCase -}}
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { {{ .Model.Name }} } from '../../models/{{ NodeOption .Root "namespace" | KebabCase }}/{{ .Model.Name | KebabCase }}'
@@ -49,7 +50,7 @@ export class {{ .Model.Name }}Service {
   {{- end }}
   {{- if not (NodeOption .Model "notPost") }}
 
-  post{{ .Model.Name }}(model: {{ .Model.Name }}) {
+  post{{ .Model.Name }}(model: {{ $pageItem }}) {
     return this._httpClient.post<number>('/{{ .Model.Name | Plural | KebabCase }}', model);
   }
   {{- end }}
