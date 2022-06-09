@@ -5,6 +5,80 @@
 (database_name): "ERP_FMS"
 (schema_name): "Maestro"
 
+FormatTXTPaymentFormatFilter:
+  (sql_ignore): true
+  (filter_ignore): true
+  (dao_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+  (embedFilter): true
+
+  bankId: { type: long, (alt): IdBanco }
+
+FormatTXTPayment:
+  (alt): "FormatoPagoTXT"
+  (isPage): true
+  (notPost): true
+  (singular): true
+  (singularFromFilter): true
+  (filter): FormatTXTPaymentFormatFilter
+  # (spGetList): "[ERP_FMS].[Transaccional].[spLibroVentasResumido]"
+  # (pageItem): SalesBookElement
+
+  bankId: { type: long, (alt): IdBanco }
+  template: { type: text, (alt): Plantilla }
+
+FormatTXTPaymentReport:
+  (alt): "FormatoPagoAuditoriaTXT"
+  (isPage): true
+  (singular): true
+  # (spGetList): "[ERP_FMS].[Transaccional].[spLibroVentasResumido]"
+  # (pageItem): SalesBookElement
+
+  bankId: { type: long, (alt): IdBanco }
+  lotId: { type: long, (alt): IdLote }
+  template: { type: text, (alt): Resultado }
+
+####################################################################################################################
+
+PaymentLetterFilter:
+  (sql_ignore): true
+  (filter_ignore): true
+  (dao_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+  (embedFilter): true
+
+  lotId: { type: long, (alt): IdLote }
+
+PaymentLetter:
+  (alt): CartaPago
+  (notPost): true
+  (filter): PaymentLetterFilter
+  (spGetList): "[ERP_FMS].[Transaccional].[spConsultarCartasPagos]"
+
+  id: { type: long, (alt): IdCartaPago }
+  number: { type: string, (alt): NumeroCartaPago, (display): Número de carta }
+  bank: { type: string, (alt): Banco, (display): Banco }
+  type: { type: string, (alt): TipoEstatusTransaccion, (display): Estatus }
+  lotId: { type: long, (alt): IdLote, (display): Estatus }
+  lot: { type: string, (alt): Lote, (display): Lote }
+  date: { type: date, (alt): FechaCreacion, (display): Fecha de creación }
+
+PaymentLetterPost:
+  (alt): CartaPagoPost
+  (filter_ignore): true
+  (list_ignore): true
+  (spPost): "[ERP_FMS].[Transaccional].[spActualizarCartasPagos]"
+
+  lotId: { type: long, (alt): IdLote }
+  businessId: { type: long, (alt): IdEmpresa }
+  userId: { type: long, (alt): IdUsuario }
+  currencyBaseId: { type: long, (alt): IdMonedaBase }
+  currencyConversionId: { type: long, (alt): IdMonedaConversion }
+
+####################################################################################################################
+
 SalesBookFilter:
   (sql_ignore): true
   (filter_ignore): true
@@ -13,17 +87,14 @@ SalesBookFilter:
   (list_ignore): true
   (embedFilter): true
 
-  page: { type: number, default: 1, (alt): NumeroPagina }
-  pageSize: { type: number, default: 5, (alt): RegistrosPagina }
+  # page: { type: number, default: 1, (alt): NumeroPagina }
+  # pageSize: { type: number, default: 5, (alt): RegistrosPagina }
 
-  dateInterval: { type: number, default: -1, (alt): FechaIntervalo }
-  initDate: { type: date, default: zeroDate(), (alt): FechaInicio }
-  endDate: { type: date, default: now(), (alt): FechaFin }
+  # dateInterval: { type: number, default: -1, (alt): FechaIntervalo }
 
-  clientId: { default: -1, type: long, (alt): IdCliente }
-  branchId: { default: -1, type: long, (alt): IdSucursal }
-
-  idBusiness: { default: 1, type: long, (alt): IdEmpresa }
+  branchId: { default: "", type: string, (alt): IdSucursal }
+  initDate: { type: date, default: zeroDate(), (alt): FechaDesde }
+  endDate: { type: date, default: now(), (alt): FechaHasta }
 
 SalesBookElement:
   (service_ignore): true
@@ -76,41 +147,94 @@ SalesBookElement:
 
 SalesBook:
   (alt): "LibroVenta"
-  (list_ignore): true
-  (isPage): true
+  # (isPage): true
   (notPost): true
-  (singular): true
-  (singularFromFilter): true
   (filter): SalesBookFilter
-  (pageItem): SalesBookElement
+  (spGetList): "[ERP_FMS].[Transaccional].[spLibroVentasResumido]"
+  # (pageItem): SalesBookElement
 
-  elements: { type: SalesBookElement, array: true, (alt): ELEMENTOS }
-  count: { type: number, (alt): CantidadRegistros }
+  date: { type: date, (alt): FechaRetencionIva, (display): Fecha Retencion IVA }
+  rif: { type: string, (alt): Rif, (display): RIF }
+  name: { type: string, (alt): Comprador, (display): Nombre / Razón Social }
+  numberIvaComprobant: { type: string, (alt): NumeroRetencionIva, (display): Número de Comprobante de Retención IVA }
+  # dateIvaComprobant: { type: date, (alt): FechaRetencionIva, (display): Fecha Retención IVA }
+  invoiceType: { type: string, (alt): Tipo, (display): Tipo Documento }
+  invoiceNumber: { type: long, (alt): FacturaAfectada, (display): Número de factura afectada }
+  salesTotal: { type: double, (alt): TotalVentas, (display): Total Ventas + IVA }
+  exemptIva: { type: double, (alt): Exento, (display): Exento }
+  taxedReduced8: { type: double, (alt): Base8, (display): Gravada Reducida 8% }
+  iva8: { type: double, (alt): Iva8, (display): IVA 8% }
+  taxedReduced16: { type: double, (alt): Base16, (display): Gravada General 16% }
+  iva16: { type: double, (alt): Iva16, (display): IVA 16% }
+  retention: { type: double, (alt): Retencion, (display): "% Retención 75/100" }
+  ivaWithheld: { type: double, (alt): IvaRetenido, (display): IVA Retenido }
+  ivaReceived: { type: double, (alt): IvaPercibido, (display): IVA Percibido }
+
+SalesBookDetailed:
+  (alt): "LibroVentaDetallado"
+  (notPost): true
+  (filter): SalesBookFilter
+  (spGetList): "[ERP_FMS].[Transaccional].[spLibroVentasDetallado]"
+
+  date: { type: date, (alt): FechaRetencionIva, (display): Fecha Retencion IVA }
+  box: { type: string, (alt): Caja, (display): Caja }
+  serial: { type: string, (alt): SerialFiscal, (display): Serial Fiscal }
+  type: { type: string, (alt): Tipo, (display): Tipo Documento }
+  first: { type: long, (alt): PrimeraFactura, (display): Primer Comprobante }
+  last: { type: long, (alt): UltimaFactura, (display): Último Comprobante }
+  affected: { type: long, (alt): FacturaAfectada, (display): Factura Afectada }
+  name: { type: string, (alt): Comprador, (display): Nombre / Razón Social }
+  rif: { type: string, (alt): Rif, (display): RIF }
+  salesTotal: { type: double, (alt): TotalVentas, (display): Total Ventas }
+  # dateIvaComprobant: { type: date, (alt): FechaRetencionIva, (display): Fecha Retención IVA }
+
+  noExemptIva: { type: double, (alt): NoExento, (display): Exento (no contribuyente) }
+  noTaxedReduced8: { type: double, (alt): NoBase8, (display): Gravada Reducida 8% (no contribuyente) }
+  noIva8: { type: double, (alt): NoIva8, (display): IVA 8% (no contribuyente) }
+  noTaxedReduced16: { type: double, (alt): NoBase16, (display): Gravada General 16% (no contribuyente) }
+  noIva16: { type: double, (alt): NoIva16, (display): IVA 16% (no contribuyente) }
+
+  exemptIva: { type: double, (alt): Exento, (display): Exento (contribuyente) }
+  taxedReduced8: { type: double, (alt): Base8, (display): Gravada Reducida 8% (contribuyente) }
+  iva8: { type: double, (alt): Iva8, (display): IVA 8% (contribuyente) }
+  taxedReduced16: { type: double, (alt): Base16, (display): Gravada General 16% (contribuyente) }
+  iva16: { type: double, (alt): Iva16, (display): IVA 16% (contribuyente) }
+
+  numberIvaComprobant: { type: string, (alt): NumeroRetencionIva, (display): Número de Comprobante }
+  retention: { type: double, (alt): Retencion, (display): "% Retención 75/100" }
+
+  exempts: { type: double, (alt): DiemoExento, (display): Exentas }
+  ivaWithheld: { type: double, (alt): IvaRetenido, (display): IVA Retenido }
+  ivaReceived: { type: double, (alt): IvaPercibido, (display): IVA Percibido }
+
+  # elements: { type: SalesBookElement, array: true, (alt): ELEMENTOS }
+  # count: { type: number, (alt): CantidadRegistros }
 
 ##############################################################################################################
 
 IvaInvoice:
-  (alt): FacturaIva
+  (alt): DocumentoIva
 
   (sql_ignore): true
   (filter_ignore): true
   (service_ignore): true
 
-  id: { type: long, (alt): IdFactura }
-  date: { type: date, (alt): FechaFactura, (display): Fecha }
-  control: { type: string, (alt): NumeroControlFactura, (display): Control }
-  invoiceTotalBase: { type: double, (alt): TotalFacturaFacturaBase, (display): Total Factura }
-  invoiceTotalConversion: { type: double, (alt): TotalFacturaConversion, (display): Total Factura }
+  id: { type: long, (alt): IdDocumento }
+  date: { type: date, (alt): FechaDocumento, (display): Fecha }
+  invoiceNumber: { type: string, (alt): NumeroDocumento, (display): Factura }
+  control: { type: string, (alt): NumeroControl, (display): Control }
+  invoiceTotalBase: { type: double, (alt): TotalDocumentoBase }
+  invoiceTotalConversion: { type: double, (alt): TotalDocumentoConversion, (display): Total Factura }
   taxId: { type: long, (alt): IdImpuesto }
-  invoiceTypeId: { default: -1, type: number, (alt): IdTipoFactura }
-  invoiceType: { type: string, (alt): TipoFactura }
-  ivaAmountBase: { type: double, (alt): MontoIvaFacturaBase, (display): Monto IVA }
-  ivaAmountConversion: { type: double, (alt): MontoIvaFacturaConversion, (display): Monto IVA }
-  ivaRetention: { type: double, (alt): PorcentajeRetencionIvaFactura, (display): "% Retención de IVA" }
-  retentionTotalBase: { type: double, (alt): TotalRetencionFacturaBase, (display): Total Retencion }
-  retentionTotalConversion: { type: double, (alt): TotalRetencionFacturaConversion, (display): Total Retencion }
-  totalBase: { type: double, (alt): TotalFacturaBase, (display): Total }
-  totalConversion: { type: double, (alt): TotalFacturaConversion, (display): Total }
+  invoiceTypeId: { default: -1, type: number, (alt): IdTipoDocumento }
+  invoiceType: { type: string, (alt): TipoDocumento }
+  ivaAmountBase: { type: double, (alt): MontoIvaDocumentoBase, (display): Monto IVA }
+  ivaAmountConversion: { type: double, (alt): MontoIvaDocumentoConversion, (display): Monto IVA }
+  ivaRetention: { type: double, (alt): PorcentajeRetencionIvaDocumento, (display): "% Retención de IVA" }
+  retentionTotalBase: { type: double, (alt): TotalRetencionDocumentoBase, (display): Total Retencion }
+  retentionTotalConversion: { type: double, (alt): TotalRetencionDocumentoConversion, (display): Total Retencion }
+  totalBase: { type: double, (alt): TotalBase, (display): Total }
+  totalConversion: { type: double, (alt): TotalConversion, (display): Total }
 
 IvaInvoiceListFilter:
   (sql_ignore): true
@@ -122,12 +246,12 @@ IvaInvoiceListFilter:
 
   page: { type: number, default: 1, (alt): NumeroPagina }
   pageSize: { type: number, default: 5, (alt): CandidadRegistros }
-  idComprobant: { type: long, default: -1, (alt): IdComprobanteRetencionIvaFactura  }
+  idComprobant: { type: long, default: -1, (alt): IdComprobanteRetencionIvaDocumento  }
   idSupplier: { default: -1, type: long, (alt): IdProveedor }
   idBusiness: { default: 1, type: long, (alt): IdEmpresa }
 
 IvaInvoiceList:
-  (alt): FacturasIva
+  (alt): DocumentosIva
 
   (list_ignore): true
   (isPage): true
@@ -142,14 +266,14 @@ IvaInvoiceList:
 
 
 IvaInvoicesComprobantDetail:
-  (alt):  ComprobanteRetencionIvaFacturaDetalle
+  (alt):  ComprobanteRetencionIvaDocumentoDetalle
 
   (sql_ignore): true
   (filter_ignore): true
   (service_ignore): true
 
-  id: { type: long, (alt): IdComprobanteRetencionIvaFacturaDetalle }
-  invoiceId: { type: long, (alt): IdFactura }
+  id: { type: long, (alt): IdComprobanteRetencionIvaDocumentoDetalle }
+  invoiceId: { type: long, (alt): IdDocumento }
   active: { type: boolean, (alt): IndActivo }
 
 
@@ -168,25 +292,25 @@ IvaInvoicesComprobantFilter:
   endDate: { type: date, default: now(), (alt): FechaFin }
   supplierType: { default: "", type: string, (alt): TipoProveedor }
   supplierId: { default: -1, type: number, (alt): IdProveedor }
-  invoiceTypeId: { default: -1, type: number, (alt): IdTipoFactura }
+  invoiceTypeId: { default: -1, type: number, (alt): IdTipoDocumento }
   statusId: { default: -1, type: number, (alt): IdEstatus }
   idBusiness: { default: 1, type: long, (alt): IdEmpresa }
 
 IvaInvoicesComprobantItem:
-  (alt): ComprobanteRetencionIvaFactura
+  (alt): ComprobanteRetencionIvaDocumento
 
   (omit_on_list): invoices
   (filter_ignore): true
   (service_ignore): true
   (sql_ignore): true
 
-  id: { type: long, pk: true, (alt): IdComprobanteRetencionIvaFactura }
+  id: { type: long, pk: true, (alt): IdComprobanteRetencionIvaDocumento }
   date: { type: date, (alt): FechaComprobante, (display): Fecha } 
   comprobantNumber: { type: string, (alt): NumeroComprobante, (display): Número de comprobante }
   idSupplier: { type: long, (alt): IdProveedor }
   supplierName: { type: string, (alt): Proveedor, (display): Proveedor }
-  invoicesTotalBase: { type: double, (alt): TotalFacturaBase, (display): Total Factura }
-  invoicesTotalConversion: { type: double, (alt): TotalFacturaConversion, (display): Total Factura }
+  invoicesTotalBase: { type: double, (alt): TotalDocumentoBase, (display): Total Factura }
+  invoicesTotalConversion: { type: double, (alt): TotalDocumentoConversion, (display): Total Factura }
   amountWithheldBase: { type: double, (alt): MontoRetenidoBase, (display): Monto Retenido }
   amountWithheldConversion: { type: double, (alt): MontoRetenidoConversion, (display): Monto Retenido }
   totalToPayBase: { type: double, (alt): TotalAPagarBase, (display): Total a Pagar }
@@ -196,7 +320,7 @@ IvaInvoicesComprobantItem:
   invoices: { type: IvaInvoicesComprobantDetail, array: true, (alt): DETALLE }
 
 IvaInvoicesComprobant:
-  (alt): ComprobanteRetencionIvaFactura
+  (alt): ComprobanteRetencionIvaDocumento
 
   (list_ignore): true
   (isPage): true
@@ -210,7 +334,7 @@ IvaInvoicesComprobant:
   count: { type: number, (alt): CantidadRegistros }
 
 IvaInvoicesComprobantPost:
-  (alt): ComprobanteRetencionIvaFactura
+  (alt): ComprobanteRetencionIvaDocumento
 
   (sql_ignore): true
   (filter_ignore): true
@@ -220,7 +344,7 @@ IvaInvoicesComprobantPost:
   (embedFilter): true
   (model_ignore): true
 
-  id: { type: long, pk: true, (alt): IdComprobanteRetencionIvaFactura }
+  id: { type: long, pk: true, (alt): IdComprobanteRetencionIvaDocumento }
   date: { type: date, (alt): FechaComprobante, (display): Fecha } 
   comprobantNumber: { type: string, (alt): NumeroComprobante, (display): Número de comprobante }
   idSupplier: { type: long, (alt): IdProveedor }

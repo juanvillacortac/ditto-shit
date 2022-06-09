@@ -7,7 +7,7 @@ import { {{ .Model.Name }} } from '../../models/{{ NodeOption .Root "namespace" 
 import { {{ $filter }} } from "../../models/{{ NodeOption .Root "namespace" | KebabCase }}/{{ $filter | KebabCase }}";
 {{- end }}
 {{- if ne $pageItem .Model.Name }}{{with Model $pageItem}}
-import { {{ $pageItem }} } from "../../models/{{ NodeOption .Root "namespace" | KebabCase }}/{{ $pageItem | KebabCase }}";
+import { {{ $pageItem }} } from "../../models/{{ NodeOption $.Root "namespace" | KebabCase }}/{{ $pageItem | KebabCase }}";
 {{- end }}{{ end }}
 
 @Injectable({

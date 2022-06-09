@@ -121,6 +121,7 @@
 ]
 ```
 {{ else }}
+{{- if NodeOption .Model "singularFromFilter" }}
 ## Obtener `{{ NodeOption .Model "alt" }}`
 
 {{- if $filter }}
@@ -138,6 +139,7 @@
     {{- ExecTmpl "propsList" .Model | indent 4 }}
 }
 ```
+{{ end }}
 {{ end }}
 
 {{- $pk := .Model.PKProp }}
