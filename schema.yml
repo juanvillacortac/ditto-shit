@@ -5,6 +5,58 @@
 (database_name): "ERP_FMS"
 (schema_name): "Maestro"
 
+TXTPaymentDebit:
+  (sql_ignore): true
+  (filter_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+
+  bank: { type: string, (alt): Banco }
+  bankAccount: { type: string, (alt): NumeroCuentaBancaria }
+  socialReason: { type: string, (alt): RazonSocial }
+  rif: { type: string, (alt): rif }
+  amount: { type: double, (alt): monto }
+
+TXTPaymentCredit:
+  (sql_ignore): true
+  (filter_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+
+  bank: { type: string, (alt): Banco }
+  bankAccount: { type: string, (alt): NumeroCuentaBancaria }
+  socialReason: { type: string, (alt): RazonSocial }
+  rif: { type: string, (alt): rif }
+  documentNumber: { type: string, (alt): NumeroDocumentoPago }
+  swift: { type: string, (alt): CodigoSwift }
+  phone: { type: string, (alt): Telefono }
+  webpage: { type: string, (alt): PaginaWeb }
+  amount: { type: double, (alt): MontoAplicado }
+  date: { type: date, (alt): FechaCreacion }
+
+TXTPaymentDetail:
+  (sql_ignore): true
+  (filter_ignore): true
+  (service_ignore): true
+  (list_ignore): true
+
+  debit: { type: TXTPaymentDebit, (alt): debito, array: true }
+  credit: { type: TXTPaymentCredit, (alt): credito, array: true }
+
+TXTPayment:
+  (alt): PagoTXT
+  (singular): true
+  (notPost): true
+
+  (spGet): "[ERP_FMS].[Transaccional].[spConsultarTransaccionesPagoxLote]"
+
+  lotId: { type: long, pk: true, (alt): IdLote }
+  lot: { type: string, (alt): Lote }
+  lotDate: { type: date, (alt): fechaLote }
+  socialReason: { type: string, (alt): RazonSocial }
+  rif: { type: string, (alt): rif }
+  details: { type: TXTPaymentDetail, (alt): detalle, array: true }
+
 FormatTXTPaymentFormatFilter:
   (sql_ignore): true
   (filter_ignore): true
